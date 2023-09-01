@@ -1,22 +1,26 @@
 import time
 import pytest
 
-
 from selenium import webdriver
 from src.pageObjects.loginPage import LoginPage
+from src.utils.ExcelRader import ExcelReader
+from selenium.webdriver.common.by import By
+
+
 class TestVWOLogin:
 
-    @pytest.fixture()
-    def driver(self):
-        driver= webdriver.Chrome()
-        driver.get("https://app.vwo.com")
-        driver.maximize_window()
-        yield driver
-        driver.quit()
+    @pytest.mark.parametrize("username, password, result", ExcelReader(
+        "/Users/megha/PycharmProject/pywebautomationframework/src/utils/test_data.xlsx").read_sheet("Sheet1"))
+    @pytest.mark.usefixtures("setup")
+    #   def test_vwologin(self, setup):
+    def test_vwo_login(self, username, password, result, setup):
+        driver = setup
+        loginPage = LoginPage(driver)
+        loginPage.login_to_vwo(username, password)
 
-    @pytest.mark.positive
-    def test_vwologin(self,driver):
-        loginpage = LoginPage(driver)
-        loginpage.login_to_vwo("contact+augg@thetestingacademy.com","Wingify@123")
-        time.sleep(5)
-        assert "Dashboard" in driver.title
+        if result == "fail":
+            assert "Your email, password, IP address or location did not match" in loginPage.get_errormessage().text
+            driver.quit()
+        else:
+            assert "https://app.vwo.com/#/dashboard" in driver.current_url
+
