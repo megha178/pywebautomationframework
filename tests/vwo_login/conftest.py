@@ -1,6 +1,5 @@
 import pytest
 from selenium import webdriver
-from dotenv import load_dotenv
 
 
 @pytest.fixture
@@ -9,7 +8,7 @@ def setup():
     driver.implicitly_wait(5)
     driver.get("https://app.vwo.com")
     driver.maximize_window()
-   # request.cls.driver = driver
+    # request.cls.driver = driver
     yield driver
     driver.quit()
 
